@@ -44,7 +44,6 @@ public class App : MonoBehaviour, INetworkRunnerCallbacks
 	private NetworkSceneManagerBase _loader;
 	private Action<List<SessionInfo>> _onSessionListUpdated;
 	private readonly Dictionary<PlayerRef, Player> _players = new Dictionary<PlayerRef, Player>();
-	private InputData _data;
 	private Session _session;
 	private string _lobbyId;
 
@@ -159,6 +158,7 @@ public class App : MonoBehaviour, INetworkRunnerCallbacks
 		_onSessionListUpdated = onSessionListUpdated;
 
 		SetConnectionStatus(ConnectionStatus.EnteringLobby);
+		
 		var result = await _runner.JoinSessionLobby(SessionLobby.Custom, lobbyId);
 
 		if (!result.Ok) {
@@ -180,7 +180,7 @@ public class App : MonoBehaviour, INetworkRunnerCallbacks
 		player.transform.SetParent(_runner.transform);
 		if (Session.Map != null)
 		{ // Late join
-			Session.Map.SpawnAvatar(player, true);
+			Session.Map.SpawnAvatar(player, false);
 		}
 	}
 

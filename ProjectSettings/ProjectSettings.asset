@@ -787,7 +787,7 @@ PlayerSettings:
   webGLDecompressionFallback: 0
   scriptingDefineSymbols:
     : FUSION_WEAVER
-    Standalone: FUSION_WEAVER
+    Standalone: FUSION_WEAVER;STEAMWORKS_NET
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend: {}

@@ -983,7 +983,7 @@ MonoBehaviour:
   _introScene:
     sceneAsset: {fileID: 102900000, guid: f58209cb822954f178cd0ce52d4b7120, type: 3}
     scenePath: Assets/Scenes/1.Intro.unity
-  _playerPrefab: {fileID: 7979975255234169267, guid: e72d6d346cd174a55b95f70e519243d3, type: 3}
+  _playerPrefab: {fileID: -2901422220487149438, guid: 26b04dc136617724a9a68870e23444db, type: 3}
   _sessionPrefab: {fileID: 1504012697553745423, guid: 17be35a8d6b4e4219a6291fa00407b61, type: 3}
   _errorBox: {fileID: 6274724182691780849}
   _sharedMode: 0

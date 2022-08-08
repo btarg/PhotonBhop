@@ -36,7 +36,7 @@ public class Map : SimulationBehaviour, ISpawned
 			return;
 		if (player.Object.HasStateAuthority) // We have StateAuth over the player if we are the host or if we're the player self in shared mode
 		{
-			Debug.Log($"Spawning avatar for player {player.Name} with input auth {player.Object.InputAuthority}");
+			Debug.Log($"Spawning avatar for player {player.PlayerName} with input auth {player.Object.InputAuthority}");
 			// Note: This only works if the number of spawnpoints in the map matches the maximum number of players - otherwise there's a risk of spawning multiple players in the same location.
 			// For example, with 4 spawnpoints and a 5 player limit, the first player will get index 4 (max-1) and the second will get index 0, and both will then use the first spawn point.
 			Transform t = _spawnPoints[((int)player.Object.InputAuthority) % _spawnPoints.Length];

@@ -10,7 +10,7 @@ using UnityEngine;
 public class Player : NetworkBehaviour
 {
 	[SerializeField] public Character CharacterPrefab;
-	[Networked] public NetworkString<_32> Name { get; set; }
+	[Networked] public NetworkString<_32> PlayerName { get; set; }
 	[Networked] public Color Color { get; set; }
 	[Networked] public NetworkBool Ready { get; set; }
 	[Networked] public NetworkBool InputEnabled { get; set; }
@@ -29,7 +29,7 @@ public class Player : NetworkBehaviour
 	[Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
 	public void RPC_SetName(NetworkString<_32> name)
 	{
-		Name = name;
+		PlayerName = name;
 	}
 
 	[Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]

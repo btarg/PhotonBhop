@@ -12,7 +12,7 @@ namespace GameUI.Staging
 
 		public void Setup(Player ply)
 		{
-			_name.text = ply.Name.Value;
+			_name.text = ply.PlayerName.Value;
 			_color.color = ply.Color;
 			_ready.SetActive(ply.Ready);
 		}

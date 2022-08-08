@@ -2,106 +2,123 @@ using System.Text;
 using UIComponents;
 using UnityEngine;
 using UnityEngine.UI;
+using Steamworks;
+using System.Collections.Generic;
+using Fusion;
 
 namespace GameUI.Staging
 {
-	public class Staging : MonoBehaviour
-	{
-		[SerializeField] private GridBuilder _playerGrid;
-		[SerializeField] private PlayerListItem _playerListItemPrefab;
-		[SerializeField] private Slider _sliderR;
-		[SerializeField] private Slider _sliderG;
-		[SerializeField] private Slider _sliderB;
-		[SerializeField] private Image _color;
-		[SerializeField] private Button _startButton;
-		[SerializeField] private Text _startLabel;
-		[SerializeField] private Text _sessionInfo;
-		[SerializeField] private GameObject _playerReady;
+    public class Staging : SimulationBehaviour
+    {
+        [SerializeField] private GridBuilder _playerGrid;
+        [SerializeField] private PlayerListItem _playerListItemPrefab;
+        [SerializeField] private Slider _sliderR;
+        [SerializeField] private Slider _sliderG;
+        [SerializeField] private Slider _sliderB;
+        [SerializeField] private Image _color;
+        [SerializeField] private Button _startButton;
+        [SerializeField] private Text _startLabel;
+        [SerializeField] private Text _sessionInfo;
+        [SerializeField] private GameObject _playerReady;
 
-		private float _sessionRefresh;
+		List<string> playerNames;
 
-		private void Awake()
-		{
-			App.Instance.GetPlayer()?.RPC_SetIsReady(false);
-			_playerReady.SetActive(false);
-		}
+        private float _sessionRefresh;
 
-		private void UpdateSessionInfo()
-		{
-			Session s = App.Instance.Session;
-			StringBuilder sb = new StringBuilder();
-			if (s != null)
-			{
-				sb.AppendLine($"Session Name: {s.Info.Name}");
-				sb.AppendLine($"Region: {s.Info.Region}");
-				sb.AppendLine($"Game Type: {s.Props.PlayMode}");
-				sb.AppendLine($"Map: {s.Props.StartMap}");
+        private void Start()
+        {
+            SteamAPI.Init();
+        }
+        private void Awake()
+        {
+            App.Instance.GetPlayer()?.RPC_SetIsReady(false);
+            _playerReady.SetActive(false);
+        }
+
+        private void UpdateSessionInfo()
+        {
+            Session s = App.Instance.Session;
+            StringBuilder sb = new StringBuilder();
+            if (s != null)
+            {
+                sb.AppendLine($"Session Name: {s.Info.Name}");
+                sb.AppendLine($"Region: {s.Info.Region}");
+                sb.AppendLine($"Game Type: {s.Props.PlayMode}");
+                sb.AppendLine($"Map: {s.Props.StartMap}");
+            }
+            _sessionInfo.text = sb.ToString();
+        }
+
+        void Update()
+        {
+			// Null name? set it to steam name
+			string name = App.Instance.GetPlayer().PlayerName.ToString();
+			if (string.IsNullOrEmpty(App.Instance.GetPlayer().PlayerName.ToString())) {
+
+				App.Instance.GetPlayer().RPC_SetName(SteamFriends.GetPersonaName());
+					
 			}
-			_sessionInfo.text = sb.ToString();
-		}
 
-		void Update()
-		{
-			int count = 0;
-			int ready = 0;
-			_playerGrid.BeginUpdate();
-			foreach (Player ply in App.Instance.Players)
-			{
-				_playerGrid.AddRow(_playerListItemPrefab, item => item.Setup(ply));
-				count++;
-				if (ply.Ready)
-					ready++;
-			}
+            int count = 0;
+            int ready = 0;
+			playerNames = new List<string>();
+            _playerGrid.BeginUpdate();
+            foreach (Player ply in App.Instance.Players)
+            {
+				if (playerNames.Contains(ply.PlayerName.ToString())) {
+					ply.RPC_SetName(ply.PlayerName.ToString() + $" ({count})");
+				}
 
-			string wait = null;
-			if (ready < count)
-				wait = $"Waiting for {count - ready} of {count} players";
-			else if (!App.Instance.IsMaster)
-				wait = "Waiting for master to start";
+				playerNames.Add(ply.PlayerName.ToString());
+                _playerGrid.AddRow(_playerListItemPrefab, item => item.Setup(ply));
+                count++;
+                if (ply.Ready)
+                    ready++;
+            }
 
-			_startButton.enabled = wait==null;
-			_startLabel.text = wait ?? "Start";
-	  
-			_playerGrid.EndUpdate();
+            string wait = null;
+            if (ready < count)
+                wait = $"Waiting for {count - ready} of {count} players";
+            else if (!App.Instance.IsMaster)
+                wait = "Waiting for master to start";
 
-			if (_sessionRefresh <= 0)
-			{
-				UpdateSessionInfo();
-				_sessionRefresh = 2.0f;
-			}
-			_sessionRefresh -= Time.deltaTime;
-		}
+            _startButton.enabled = wait == null;
+            _startLabel.text = wait ?? "Start";
 
-		public void OnStart()
-		{
-			SessionProps props = App.Instance.Session.Props;
-			App.Instance.Session.LoadMap(props.StartMap);
-		}
+            _playerGrid.EndUpdate();
 
-		public void OnToggleIsReady()
-		{
-			Player ply = App.Instance.GetPlayer();
-			_playerReady.SetActive(!ply.Ready);
-			ply.RPC_SetIsReady(!ply.Ready);
-		}
+            if (_sessionRefresh <= 0)
+            {
+                UpdateSessionInfo();
+                _sessionRefresh = 2.0f;
+            }
+            _sessionRefresh -= Time.deltaTime;
+        }
 
-		public void OnNameChanged(string name)
-		{
-			Player ply = App.Instance.GetPlayer();
-			ply.RPC_SetName(name);
-		}
-	
-		public void OnColorUpdated()
-		{
-			Player ply = App.Instance.GetPlayer();
-			Color c = new Color(_sliderR.value, _sliderG.value, _sliderB.value);
-			_color.color = c;
-			ply.RPC_SetColor( c);
-		}
+        public void OnStart()
+        {
+            SessionProps props = App.Instance.Session.Props;
+            App.Instance.Session.LoadMap(props.StartMap);
+        }
 
-		public void OnDisconnect()
-		{
-			App.Instance.Disconnect();
-		}
-	}
+        public void OnToggleIsReady()
+        {
+            Player ply = App.Instance.GetPlayer();
+            _playerReady.SetActive(!ply.Ready);
+            ply.RPC_SetIsReady(!ply.Ready);
+        }
+
+        public void OnColorUpdated()
+        {
+            Player ply = App.Instance.GetPlayer();
+            Color c = new Color(_sliderR.value, _sliderG.value, _sliderB.value);
+            _color.color = c;
+            ply.RPC_SetColor(c);
+        }
+
+        public void OnDisconnect()
+        {
+            App.Instance.Disconnect();
+        }
+    }
 }

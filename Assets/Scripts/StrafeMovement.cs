@@ -2,15 +2,16 @@
 using Fusion;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
+using TMPro;
 
 [RequireComponent(typeof(Character), typeof(Rigidbody))]
 public class StrafeMovement : NetworkBehaviour
 {
     [Networked] public NetworkButtons ButtonsPrevious { get; set; }
     [SerializeField]
-    private float accel = 200f;         // How fast the player accelerates on the ground
+    private float accel = 300f;         // How fast the player accelerates on the ground
     [SerializeField]
-    private float airAccel = 200f;      // How fast the player accelerates in the air
+    private float airAccel = 400f;      // How fast the player accelerates in the air
     [SerializeField]
     private float maxSpeed = 6.4f;      // Maximum player speed on the ground
     [SerializeField]
@@ -25,6 +26,8 @@ public class StrafeMovement : NetworkBehaviour
     [SerializeField]
     private GameObject camObj;
 
+    public TextMeshProUGUI speedometerText;
+
     private float lastJumpPress = -1f;
     private float jumpPressDuration = 0.1f;
     private bool onGround = false;
@@ -32,18 +35,23 @@ public class StrafeMovement : NetworkBehaviour
     private Player _player;
 
     public GameObject[] showOnMenu;
+    public GameObject[] hideOnMenu;
     public GameObject selectWhenOpen;
+    public GameObject scoreboardObject;
     bool _isMenuOpen = false;
 
     private PlayerControls controls;
 
     public override void Spawned()
     {
-        controls = new PlayerControls();
-        controls.Enable();
-        controls.Player.Menu.performed += ToggleMenu;
-        HideMenu();
-        _player = App.Instance.GetPlayer(Object.InputAuthority);
+        if (Object.HasInputAuthority) {
+            controls = new PlayerControls();
+            controls.Enable();
+            controls.Player.Menu.performed += ToggleMenu;
+            HideMenu();
+            _player = App.Instance.GetPlayer(Object.InputAuthority);
+        }
+        
     }
 
     void HideMenu()
@@ -54,6 +62,10 @@ public class StrafeMovement : NetworkBehaviour
         foreach (GameObject go in showOnMenu)
         {
             go.SetActive(false);
+        }
+        foreach (GameObject go in hideOnMenu)
+        {
+            go.SetActive(true);
         }
         _isMenuOpen = false;
     }
@@ -67,6 +79,10 @@ public class StrafeMovement : NetworkBehaviour
         foreach (GameObject go in showOnMenu)
         {
             go.SetActive(true);
+        }
+        foreach (GameObject go in hideOnMenu)
+        {
+            go.SetActive(false);
         }
         _isMenuOpen = true;
         
@@ -97,6 +113,12 @@ public class StrafeMovement : NetworkBehaviour
     {
         if (GetInput<NetworkInputData>(out var input) == false || !_player || !_player.InputEnabled || _isMenuOpen)
             return;
+
+        if (controls.Player.ShowScoreboard.IsPressed()) {
+            scoreboardObject.SetActive(true);
+        } else {
+            scoreboardObject.SetActive(false);
+        }
 
         // compute pressed/released state
         var pressed = input.Buttons.GetPressed(ButtonsPrevious);
@@ -149,6 +171,8 @@ public class StrafeMovement : NetworkBehaviour
     {
         onGround = CheckGround();
         float speed = currentVelocity.magnitude;
+
+        speedometerText.text = Mathf.Floor(speed).ToString();
 
         if (!onGround || input.Buttons.IsSet(MyButtons.Jump) || speed == 0f)
             return currentVelocity;

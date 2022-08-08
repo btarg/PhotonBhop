@@ -267,12 +267,16 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6274724183888813008, guid: 8ff5f212714e94999abb71d8e7248bd9, type: 3}
+      propertyPath: _autoSession.RoomName
+      value: AutoSession1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6274724183888813008, guid: 8ff5f212714e94999abb71d8e7248bd9, type: 3}
       propertyPath: _autoSession.StartMap
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6274724183888813008, guid: 8ff5f212714e94999abb71d8e7248bd9, type: 3}
       propertyPath: _autoSession.SkipStaging
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6274724183888813009, guid: 8ff5f212714e94999abb71d8e7248bd9, type: 3}
       propertyPath: m_Name

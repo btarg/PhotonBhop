@@ -18,7 +18,7 @@ public class Character : NetworkBehaviour
 	public override void Spawned()
 	{
 		_player = App.Instance.GetPlayer(Object.InputAuthority);
-		_name.text = _player.Name.Value;
+		_name.text = _player.PlayerName.Value;
 		_mesh.material.color = _player.Color;
 	}
 
